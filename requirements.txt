@@ -3,6 +3,6 @@ sqlalchemy.orm
 xgboost
 scikit-learn
 seaborn
-sklearn.metrics
+scikit-metrics
 matplotlib.pyplot
 pandas
