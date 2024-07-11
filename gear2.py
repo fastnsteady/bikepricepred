@@ -166,13 +166,14 @@ cc_data = {
 }
 
 # Prediction function
+# Prediction function with 35% increase for base price
 def prediction(var):
     input_variables = pd.DataFrame([var],
                                    columns=['yeardiff', 'model', 'company ', 'cc '],
                                    dtype=float)
     
     pred1 = loadmodel.predict(input_variables)
-    pred = pred1 + 0.35 * pred1
+    pred = pred1 * 1.35  # Applying 35% increase
     return pred[0]
 
 def main():
@@ -217,7 +218,7 @@ def main():
         else:
             st.warning(f"No models available for {selected_company}")
 
-    # Predict price
+    # Predict base price
     if st.button("Predict Base Price"):
         if selected_company == "Select Make" or (bike_companies[selected_company]["models"] and model_code is None):
             st.error("Please select both company and model (if available).")
@@ -232,7 +233,6 @@ def main():
             new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model if model_code else "N/A", predicted_price=base_price)
             session.add(new_bike)
             session.commit()
-         
 
     # Condition buttons and price display
     if 'current_price' in st.session_state:
@@ -252,8 +252,14 @@ def main():
         if st.session_state.condition_level == -1:
             st.warning("We don't deal in bad condition.")
         else:
-            # Calculate price range
-            condition_factor = 1 + (st.session_state.condition_level) * 0.10
+            # Calculate price range based on condition
+            if st.session_state.condition_level == 2:  # Good condition
+                condition_factor = 1.0
+            elif st.session_state.condition_level > 2:  # Better than Good condition
+                condition_factor = 1.08 ** (st.session_state.condition_level - 2)
+            else:  # Fair condition
+                condition_factor = 0.95
+
             min_price = st.session_state.current_price * condition_factor
             max_price = min_price * 1.02  # Assuming a 2% range
 
@@ -264,20 +270,20 @@ def main():
             </div>
             """, unsafe_allow_html=True)
 
-# Display condition buttons
-        st.markdown(
-            f"""
-            <style>
-            .stButton > button {{
-                width: 100%;
-                height: 50px;
-                font-size: 14px;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True,
-         )
-
+    # Display condition buttons
+    st.markdown(
+        f"""
+        <style>
+        .stButton > button {{
+            width: 100%;
+            height: 50px;
+            font-size: 14px;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 if __name__ == "__main__":
     main()
+
