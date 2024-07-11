@@ -1,2 +1,8 @@
 sqlalchemy
 sqlalchemy.orm
+xgboost
+sklearn.model_selection
+seaborn
+sklearn.metrics
+matplotlib.pyplot
+pandas
