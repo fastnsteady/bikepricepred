@@ -1,7 +1,7 @@
 sqlalchemy
 sqlalchemy.orm
 xgboost
-sklearn.model_selection
+scikit-learn
 seaborn
 sklearn.metrics
 matplotlib.pyplot
