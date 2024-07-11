@@ -4,5 +4,5 @@ xgboost
 scikit-learn
 seaborn
 scikit-metrics
-matplotlib.pyplot
+matplotlib
 pandas
