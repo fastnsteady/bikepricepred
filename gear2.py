@@ -278,6 +278,14 @@ def main():
             width: 100%;
             height: 50px;
             font-size: 14px;
+            color: #000000;
+            background-color: #ffffff; /* Default background color */
+        }}
+
+        /* Custom style for 'Good' condition */
+        .goodCondition {{
+            background-color: #4CAF50 !important; /* Green background */
+            color: #ffffff !important; /* White text */
         }}
         </style>
         """,
