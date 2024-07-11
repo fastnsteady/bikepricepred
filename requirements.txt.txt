@@ -1,1 +1,8 @@
-bhai chalta hai 
+numpy
+pickle
+pandas
+streamlit
+datetime
+sqlalchemy
+sqlalchemy.orm
+setupdb
