@@ -234,14 +234,34 @@ def main():
         min_price = st.session_state.current_price * condition_factor
         max_price = min_price * 1.06  # Assuming a 6% range
 
+#        st.markdown(f"""
+#        <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+#            <h3>Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+#            <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+#        </div>
+#        """, unsafe_allow_html=True)
+#
+#        # Display condition buttons
+#        st.markdown(
+#            f"""
+#            <style>
+#            .stButton > button {{
+#                width: 100%;
+#                height: 50px;
+#                font-size: 14px;
+#            }}
+#            </style>
+#            """,
+#            unsafe_allow_html=True,
+#        )
         st.markdown(f"""
         <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-            <h3>style="color: #276bf2;Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-            <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+             <h3 style="color: #276bf2;">Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+             <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
         </div>
         """, unsafe_allow_html=True)
 
-        # Display condition buttons
+# Display condition buttons
         st.markdown(
             f"""
             <style>
@@ -253,7 +273,8 @@ def main():
             </style>
             """,
             unsafe_allow_html=True,
-        )
+         )
+
 
 if __name__ == "__main__":
     main()
