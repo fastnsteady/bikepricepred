@@ -23,133 +23,6 @@ session = Session()
 # Load the model
 loadmodel = pickle.load(open('finalmodel.sav', 'rb'))
 
-# Dictionary of bike companies with their codes and models
-bike_companies = {
-    "Bajaj": {
-        "code": 1,
-        "models": {
-            "Avenger 220": 1007,
-            "CT 100": 1016,
-            "Discover 100T": 1019,
-            "Dominar 400cc": 1020,
-            "Platina": 1045,
-            "Pulsar 150 CC": 1047,
-            "Vikrant v15": 1060,
-            "V15": 1062
-        }
-    },
-    "GEM": {
-        "code": 2,
-        "models": {}
-    },
-    "Hero": {
-        "code": 3,
-        "models": {
-            "Achiever 150": 1001,
-            "CBZ Xtreme 200": 1013,
-            "CD 110": 1014,
-            "Destini 125": 1018,
-            "Glamour EFI": 1029,
-            "HF Deluxe": 1031,
-            "Hunk": 1033,
-            "MaestroEDGE 110": 1041,
-            "Passion PRO": 1043,
-            "Pleasure": 1046,
-            "Shine": 1053,
-            "Splendor iSmart": 1036,
-            "Xtreme Sports": 1058,
-            "Xpulse": 1061
-        }
-    },
-    "Honda": {
-        "code": 4,
-        "models": {
-            "Activa 3G": 1002,
-            "Activa 125": 1003,
-            "Activa 5G": 1005,
-            "Activa HET": 1006,
-            "CB Hornet": 1010,
-            "CB Shine": 1011,
-            "CB Trigger": 1012,
-            "Dream Yuga": 1021,
-            "Grazia": 1030,
-            "Livo": 1040,
-            "Stunner": 1057,
-            "Twister": 1064,
-            "X Blade": 1063
-        }
-    },
-    "Royal Enfield": {
-        "code": 10,
-        "models": {
-            "Electra 350cc": 1024,
-            "Himalyan 412": 1032,
-            "Jawa ABS": 1037
-        }
-    },
-    "Yamaha": {
-        "code": 6,
-        "models": {
-            "Cygnus Alpha": 1017,
-            "Fascino": 1026,
-            "FZ-S": 1027,
-            "R15": 1048,
-            "Saluto": 1051,
-            "SS 125cc": 1055,
-            "SZ-RR": 1065
-        }
-    },
-    "Suzuki": {
-        "code": 11,
-        "models": {
-            "Access 125": 1000,
-            "Burgman street": 1009,
-            "Gixxer": 1028,
-            "Intruder": 1034
-        }
-    },
-    "TVS": {
-        "code": 12,
-        "models": {
-            "Apache 160 RTR": 1008,
-            "IQube": 1035,
-            "Jupiter": 1038,
-            "NTORQ": 1042,
-            "Phoenix": 1044,
-            "Radeon": 1049,
-            "Raider": 1050,
-            "Scooty Pep+": 1052,
-            "Sport KLS": 1054,
-            "Star Sport": 1056,
-            "Victor": 1059
-        }
-    },
-    "Importer Adishwar": {
-        "code": 5,
-        "models": {
-            "Keeway SR 250": 1039
-        }
-    },
-    "KTM": {
-        "code": 7,
-        "models": {
-            "Duke 125cc": 1023
-        }
-    },
-    "Mahindra": {
-        "code": 8,
-        "models": {
-            "Centuro": 1015
-        }
-    },
-    "Okaya": {
-        "code": 9,
-        "models": {
-            "Faast F4": 1025
-        }
-    }
-}
-
 # Dictionary of cc values for each model
 cc_data = {
     1000: 125, 1001: 150, 1002: 110, 1003: 125, 1005: 110, 1006: 110, 1007: 220, 1008: 160, 
@@ -170,7 +43,7 @@ def prediction(var):
                                    dtype=float)
     
     pred1 = loadmodel.predict(input_variables)
-    pred = pred1 + 0.35*pred1
+    pred = pred1 + 0.35 * pred1
     return pred[0]
 
 def main():
@@ -230,7 +103,7 @@ def main():
             new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model if model_code else "N/A", predicted_price=base_price)
             session.add(new_bike)
             session.commit()
-            st.write("Data stored in the database successfully!")
+         
 
     # Condition buttons and price display
     if 'current_price' in st.session_state:
@@ -241,19 +114,26 @@ def main():
 
         for i, (condition, col) in enumerate(zip(conditions, columns)):
             if col.button(condition, key=f"condition_{i}"):
-                st.session_state.condition_level = i
+                if condition == "Bad":
+                    st.session_state.condition_level = -1
+                else:
+                    st.session_state.condition_level = i
 
-        # Calculate price range
-        condition_factor = 1 + (st.session_state.condition_level - 2) * 0.02
-        min_price = st.session_state.current_price * condition_factor
-        max_price = min_price * 1.02  # Assuming a 40% range
+        # Display message for bad condition
+        if st.session_state.condition_level == -1:
+            st.warning("We don't deal in bad condition.")
+        else:
+            # Calculate price range
+            condition_factor = 1 + (st.session_state.condition_level) * 0.10
+            min_price = st.session_state.current_price * condition_factor
+            max_price = min_price * 1.02  # Assuming a 2% range
 
-        st.markdown(f"""
-        <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-             <h3 style="color: #276bf2;">Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-             <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                 <h3 style="color: #276bf2;">Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                 <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Display condition buttons
         st.markdown(
