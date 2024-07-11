@@ -235,7 +235,7 @@ def main():
         max_price = min_price * 1.06  # Assuming a 6% range
 
         st.markdown(f"""
-        <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+        <div style="text-align: center; padding: 10px; background-color: #276bf2; border-radius: 5px;">
             <h3>Automobile to dealer in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
             <h2 style="color: #FF6B00;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
         </div>
