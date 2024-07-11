@@ -246,7 +246,7 @@ def main():
         # Calculate price range
         condition_factor = 1 + (st.session_state.condition_level - 2) * 0.02
         min_price = st.session_state.current_price * condition_factor
-        max_price = min_price * 1.4  # Assuming a 40% range
+        max_price = min_price * 1.02  # Assuming a 40% range
 
         st.markdown(f"""
         <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
