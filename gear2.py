@@ -21,7 +21,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # Load the model
-loadmodel = pickle.load(open('C:/Users/Shubham Singhal/Downloads/finalmodel.sav', 'rb'))
+loadmodel = pickle.load(open('finalmodel.sav', 'rb'))
 
 # Dictionary of bike companies with their codes and models
 bike_companies = {
