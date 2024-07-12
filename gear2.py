@@ -271,30 +271,32 @@ def main():
             """, unsafe_allow_html=True)
 
     # Display condition buttons
-    st.markdown(
-    """
+    st.markdown("""
     <style>
-    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
-    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
-    .viewerBadge_text__1JaDK {
-        display: none;
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Hide Streamlit's default GitHub icon */
+    .stDeployButton {
+        display: none !important;
     }
+    
+    /* Your existing button styles */
     .stButton > button {
         width: 100%;
         height: 50px;
         font-size: 14px;
         color: #000000;
-        background-color: #ffffff; /* Default background color */
+        background-color: #ffffff;
     }
-    /* Custom style for 'Good' condition */
+    
     .goodCondition {
-        background-color: #4CAF50 !important; /* Green background */
-        color: #ffffff !important; /* White text */
+        background-color: #4CAF50 !important;
+        color: #ffffff !important;
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
