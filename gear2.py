@@ -282,6 +282,16 @@ def main():
         display: none !important;
     }
     
+    /* Hide the "Manage app" button */
+    .viewerBadge_container__1QSob {
+        display: none !important;
+    }
+    
+    /* Hide the bottom toolbar completely */
+    .stToolbar {
+        display: none !important;
+    }
+    
     /* Your existing button styles */
     .stButton > button {
         width: 100%;
