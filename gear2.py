@@ -272,30 +272,29 @@ def main():
 
     # Display condition buttons
     st.markdown(
-        f"""
-        <style>
-        .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
-        .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
-        .viewerBadge_text__1JaDK {
-         display: none;
-         }
-        .stButton > button {{
-            width: 100%;
-            height: 50px;
-            font-size: 14px;
-            color: #000000;
-            background-color: #ffffff; /* Default background color */
-        }}
-
-        /* Custom style for 'Good' condition */
-        .goodCondition {{
-            background-color: #4CAF50 !important; /* Green background */
-            color: #ffffff !important; /* White text */
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    """
+    <style>
+    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
+    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
+    .viewerBadge_text__1JaDK {
+        display: none;
+    }
+    .stButton > button {
+        width: 100%;
+        height: 50px;
+        font-size: 14px;
+        color: #000000;
+        background-color: #ffffff; /* Default background color */
+    }
+    /* Custom style for 'Good' condition */
+    .goodCondition {
+        background-color: #4CAF50 !important; /* Green background */
+        color: #ffffff !important; /* White text */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 if __name__ == "__main__":
     main()
