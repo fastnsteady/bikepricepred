@@ -173,7 +173,7 @@ def prediction(var):
                                    dtype=float)
     
     pred1 = loadmodel.predict(input_variables)
-    pred = pred1 * 1.35  # Applying 35% increase
+    pred = pred1 * 1.15  # Applying 35% increase
     return pred[0]
 
 def main():
