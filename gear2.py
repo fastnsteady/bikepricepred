@@ -256,12 +256,12 @@ def main():
             if st.session_state.condition_level == 2:  # Good condition
                 condition_factor = 1.0
             elif st.session_state.condition_level > 2:  # Better than Good condition
-                condition_factor = 1.06 ** (st.session_state.condition_level - 2)
+                condition_factor = 1.025 ** (st.session_state.condition_level - 2)
             else:  # Fair condition
                 condition_factor = 0.95
 
             min_price = st.session_state.current_price * condition_factor
-            max_price = min_price * 1.02  # Assuming a 2% range
+            max_price = min_price * 1.015  # Assuming a 2% range
 
             st.markdown(f"""
             <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
