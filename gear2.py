@@ -173,7 +173,7 @@ def prediction(var):
                                    dtype=float)
     
     pred1 = loadmodel.predict(input_variables)
-    pred = pred1 * 1.15  # Applying 35% increase
+    pred = pred1 * 1.05  # Applying 35% increase
     return pred[0]
 
 def main():
@@ -256,7 +256,7 @@ def main():
             if st.session_state.condition_level == 2:  # Good condition
                 condition_factor = 1.0
             elif st.session_state.condition_level > 2:  # Better than Good condition
-                condition_factor = 1.08 ** (st.session_state.condition_level - 2)
+                condition_factor = 1.06 ** (st.session_state.condition_level - 2)
             else:  # Fair condition
                 condition_factor = 0.95
 
