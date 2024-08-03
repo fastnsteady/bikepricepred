@@ -12,15 +12,7 @@ import pandas as pd
 import sqlite3
 import streamlit as st
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///bikes.db"
-
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
 # Ensure setupdb.py is in the same directory and properly configured
 from setupdb import Bike
 
