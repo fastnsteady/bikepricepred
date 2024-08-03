@@ -202,6 +202,8 @@ def main():
         st.session_state.price_range = (0, 0)
     if 'current_price' not in st.session_state:
         st.session_state.current_price = 0
+    if 'price_calculated' not in st.session_state:
+        st.session_state.price_calculated = False
 
     col1, col2 = st.columns(2)
 
@@ -266,25 +268,27 @@ def main():
                     min_price = base_price
                     max_price = min_price * 1.03
                     st.session_state.price_range = (min_price, max_price)
+                    st.session_state.price_calculated = True
 
                     st.success(f"The predicted base price is: ₹{base_price:.2f}")
 
-    # Condition buttons
-    conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
-    cols = st.columns(len(conditions))
-    for i, (condition, col) in enumerate(zip(conditions, cols)):
-        if col.button(condition, key=f"condition_{i}"):
-            st.session_state.condition_level = i
-            
-            # Calculate price range for the selected condition
-            if condition == "Good":
-                min_price = st.session_state.current_price
-            else:
-                prev_min_price = st.session_state.price_range[0]
-                min_price = prev_min_price * 1.07
+    # Display condition buttons only if price has been calculated
+    if st.session_state.price_calculated:
+        conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
+        cols = st.columns(len(conditions))
+        for i, (condition, col) in enumerate(zip(conditions, cols)):
+            if col.button(condition, key=f"condition_{i}"):
+                st.session_state.condition_level = i
+                
+                # Calculate price range for the selected condition
+                if condition == "Good":
+                    min_price = st.session_state.current_price
+                else:
+                    prev_min_price = st.session_state.price_range[0]
+                    min_price = prev_min_price * 1.07
 
-            max_price = min_price * 1.03
-            st.session_state.price_range = (min_price, max_price)
+                max_price = min_price * 1.03
+                st.session_state.price_range = (min_price, max_price)
 
     # Display price range
     if st.session_state.condition_level is not None:
