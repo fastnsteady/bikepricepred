@@ -176,7 +176,7 @@ def prediction(var):
 
 
 def get_condition_gauge_html(condition):
-    # Define gauge colors and ranges
+    conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent']
     colors = {
         'Bad': '#ff0000',
         'Fair': '#ff7f00',
@@ -184,22 +184,9 @@ def get_condition_gauge_html(condition):
         'Very Good': '#cccc00',
         'Excellent': '#00ff00'
     }
-    labels = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent']
-    color_ranges = {
-        'Bad': (0, 25),
-        'Fair': (25, 50),
-        'Good': (50, 65),
-        'Very Good': (65, 80),
-        'Excellent': (80, 100)
-    }
+    angle = conditions.index(condition) * 36  # 180 degrees / 5 conditions = 36 degrees per condition
     
-    # Calculate angles based on ranges
-    def get_angle(condition):
-        start, end = color_ranges[condition]
-        return (start + end) / 2
-    
-    angle = get_angle(condition)
-    gauge_html = f"""
+    return f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -211,35 +198,17 @@ def get_condition_gauge_html(condition):
             width: 100%;
             max-width: 300px;
             margin: 0 auto;
+            position: relative;
         }}
         .gauge {{
             width: 100%;
             height: 150px;
             position: relative;
             overflow: hidden;
-        }}
-        .gauge:before {{
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 200px;
-            border-radius: 100% 100% 0 0;
-            background: conic-gradient(
-                from 180deg,
-                {', '.join([f'{colors[label]} {(i*36)}deg {(i*36)+36}deg' for i, label in enumerate(labels)])}
-            );
-        }}
-        .gauge-mask {{
-            width: 100%;
-            height: 150px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: #fff;
-            transform-origin: center bottom;
-            transition: transform 0.5s ease-in-out;
+            border-radius: 150px 150px 0 0;
+            background: {colors[condition]};
+            transform: rotate(180deg);
+            transform-origin: bottom;
         }}
         .needle {{
             width: 2px;
@@ -249,7 +218,7 @@ def get_condition_gauge_html(condition):
             bottom: 0;
             left: 50%;
             transform-origin: bottom center;
-            transition: transform 0.5s ease-in-out;
+            transform: rotate({angle}deg);
         }}
         .gauge-value {{
             position: absolute;
@@ -272,40 +241,17 @@ def get_condition_gauge_html(condition):
     <body>
     <div class="gauge-container">
         <div class="gauge">
-            <div class="gauge-mask" id="gaugeMask"></div>
-            <div class="needle" id="gaugeNeedle"></div>
-            <div class="gauge-value" id="gaugeValue">{condition}</div>
+            <div class="needle"></div>
+            <div class="gauge-value">{condition}</div>
         </div>
         <div class="gauge-labels">
             <span>Bad</span>
             <span>Excellent</span>
         </div>
     </div>
-
-    <script>
-        function updateGauge(condition) {{
-            const conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent'];
-            const index = conditions.indexOf(condition);
-            const angle = index * 36; // 180 degrees / 5 sections = 36 degrees per section
-
-            const gaugeMask = document.getElementById('gaugeMask');
-            const gaugeNeedle = document.getElementById('gaugeNeedle');
-            const gaugeValue = document.getElementById('gaugeValue');
-
-            gaugeMask.style.transform = `rotate(${180 - angle}deg)`;
-            gaugeNeedle.style.transform = `rotate(${angle}deg)`;
-            gaugeValue.textContent = condition;
-        }}
-
-        // Initial gauge setup
-        document.addEventListener('DOMContentLoaded', function() {{
-            updateGauge('{condition}');
-        }});
-    </script>
     </body>
     </html>
     """
-    return gauge_html
 
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
@@ -440,7 +386,7 @@ def main():
         with gauge_col:
             # Render the gauge
             gauge_html = get_condition_gauge_html(conditions[st.session_state.condition_level])
-            components.html(gauge_html, height=200, scrolling=False)
+            components.html(gauge_html, height=250, scrolling=False)
 
         with info_col:
             if st.session_state.condition_level is not None:
