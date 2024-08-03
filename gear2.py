@@ -184,6 +184,9 @@ def main():
         background-color: #276bf2;
         color: white;
     }
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
