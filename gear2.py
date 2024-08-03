@@ -312,11 +312,24 @@ def main():
             else:
                 min_price, max_price = st.session_state.price_range
                 st.markdown(f"""
-                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                    <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-                    <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-                </div>
-                """, unsafe_allow_html=True)
+    <style>
+        body {{
+            background-color: #ffffff; /* Light background */
+            color: #000000; /* Dark text color */
+        }}
+        .full-width-box {{
+            width: 100%;
+            padding: 10px;
+            background-color: #f0f2f6;
+            border-radius: 5px;
+            text-align: center;
+        }}
+    </style>
+    <div class="full-width-box">
+        <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+        <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+    </div>
+""", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
