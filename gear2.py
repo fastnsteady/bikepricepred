@@ -242,12 +242,6 @@ def main():
             final = (total1 - total) / 365
 
             base_price = prediction([final, model_code, company_code, float(cc_value)])
-            st.session_state.current_price = base_price
-            st.session_state.condition_level = 2  # Start at "Good" condition
-
-            # Store the input and predicted price in the database
-            new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model, predicted_price=base_price)
-        
 
             st.markdown("<h3 class='sub-header'>Resale value of {} {} in Delhi</h3>".format(selected_company, selected_model), unsafe_allow_html=True)
             st.markdown("<p>The value given below is an estimated value only. Actual value may vary depending on the condition of the two-wheeler and several other factors.</p>", unsafe_allow_html=True)
@@ -264,23 +258,24 @@ def main():
             col1, col2, col3, col4, col5 = st.columns(5)
             columns = [col1, col2, col3, col4, col5]
 
+            condition_level = None
+
             for i, (condition, col) in enumerate(zip(conditions, columns)):
                 if col.button(condition, key=f"condition_{i}"):
                     if condition == "Bad":
-                        st.session_state.condition_level = -1
+                        st.warning("We don't deal in bad condition.")
+                        condition_level = -1
                     else:
-                        st.session_state.condition_level = i
+                        condition_level = i
 
-            if st.session_state.condition_level == -1:
-                st.warning("We don't deal in bad condition.")
-            else:
-                condition_factor = condition_factors[conditions[st.session_state.condition_level]]
-                min_price = st.session_state.current_price * condition_factor
+            if condition_level is not None and condition_level != -1:
+                condition_factor = condition_factors[conditions[condition_level]]
+                min_price = base_price * condition_factor
                 max_price = min_price * 1.07  # Assuming a 7% range for upper limit
 
                 st.markdown(f"""
                 <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                     <h3 style="color: #276bf2;">Automobile in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                     <h3 style="color: #276bf2;">Automobile in {conditions[condition_level]} Condition is valued at</h3>
                      <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
                 </div>
                 """, unsafe_allow_html=True)
