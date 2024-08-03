@@ -192,7 +192,7 @@ def main():
 
     st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
-    st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sub-header'>Find the right and best price for your bike</h2>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'company' not in st.session_state:
