@@ -191,7 +191,6 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-
     st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
     st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
@@ -209,6 +208,8 @@ def main():
         st.session_state.current_price = 0
     if 'base_price_predicted' not in st.session_state:
         st.session_state.base_price_predicted = False
+    if 'bad_condition_selected' not in st.session_state:
+        st.session_state.bad_condition_selected = False
 
     col1, col2 = st.columns(2)
 
@@ -317,7 +318,6 @@ def main():
                     <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
                 </div>
                 """, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     main()
