@@ -11,14 +11,11 @@ import pickle
 import pandas as pd
 import streamlit as st
 from datetime import datetime
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
 from setupdb import Bike  # Ensure setupdb.py is in the same directory
 
 # Create a SQLite database connection
-engine = create_engine('sqlite:///bikes.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+
 
 # Load the model
 loadmodel = pickle.load(open('finalmodel.sav', 'rb'))
@@ -253,7 +250,7 @@ def main():
 
             # Store the input and predicted price in the database
             new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model, predicted_price=base_price)
-            session.append(new_bike)
+        
 
             st.markdown("<h3 class='sub-header'>Resale value of {} {} in Delhi</h3>".format(selected_company, selected_model), unsafe_allow_html=True)
             st.markdown("<p>The value given below is an estimated value only. Actual value may vary depending on the condition of the two-wheeler and several other factors.</p>", unsafe_allow_html=True)
