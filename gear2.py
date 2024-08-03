@@ -218,7 +218,7 @@ def main():
             st.session_state.model = None  # Reset model if company changes
 
     with col2:
-        if st.session_state.company:
+        if st.session_state.company and st.session_state.company != "Select Make":
             if st.session_state.company in bike_companies:
                 company_models = bike_companies[st.session_state.company].get("models", {})
                 if company_models:
@@ -237,6 +237,7 @@ def main():
         else:
             selected_model = "Select Model"
 
+    # Rest of your code remains unchanged
     col3, col4 = st.columns(2)
 
     with col3:
