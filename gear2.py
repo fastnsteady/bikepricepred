@@ -9,10 +9,12 @@ import os
 import numpy as np 
 import pickle
 import pandas as pd
+import sqlite3
 import streamlit as st
 from datetime import datetime
 
-from setupdb import Bike  # Ensure setupdb.py is in the same directory
+# Ensure setupdb.py is in the same directory and properly configured
+from setupdb import Bike
 
 # Create a SQLite database connection
 
@@ -189,6 +191,12 @@ def main():
     st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
     st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
 
+    # Initialize session state
+    if 'company' not in st.session_state:
+        st.session_state.company = None
+    if 'model' not in st.session_state:
+        st.session_state.model = None
+
     col1, col2 = st.columns(2)
     
     with col1:
@@ -196,17 +204,22 @@ def main():
             "Select Make",
             ["Select Make"] + list(bike_companies.keys())
         )
+        if selected_company != st.session_state.company:
+            st.session_state.company = selected_company
+            st.session_state.model = None  # Reset model if company changes
 
     with col2:
-        if selected_company != "Select Make":
-            company_models = bike_companies[selected_company]["models"]
+        if st.session_state.company:
+            company_models = bike_companies[st.session_state.company]["models"]
             if company_models:
                 selected_model = st.selectbox(
                     "Select Model",
                     ["Select Model"] + list(company_models.keys())
                 )
+                if selected_model != st.session_state.model:
+                    st.session_state.model = selected_model
             else:
-                st.warning(f"No models available for {selected_company}")
+                st.warning(f"No models available for {st.session_state.company}")
                 selected_model = "Select Model"
         else:
             selected_model = "Select Model"
@@ -222,75 +235,33 @@ def main():
     kms_run = st.number_input("KMs Run", min_value=0, value=0)
 
     if st.button("Check Price"):
-        if selected_company == "Select Make" or selected_model == "Select Model":
-            st.error("Please select both company and model.")
+        if st.session_state.company == "Select Make" or st.session_state.model == "Select Model":
+            st.warning("Please select a valid make and model.")
         else:
-            company_code = bike_companies[selected_company]["code"]
-            model_code = bike_companies[selected_company]["models"][selected_model]
-            cc_value = cc_data.get(model_code, 0)
+            company_code = bike_companies[st.session_state.company]["code"]
+            model_code = bike_companies[st.session_state.company]["models"].get(st.session_state.model, None)
+            if model_code is None:
+                st.warning(f"Model {st.session_state.model} not found for {st.session_state.company}.")
+            else:
+                current_year = datetime.now().year
+                age = current_year - Year
+                cc = cc_data.get(model_code, 100)  # Defaulting cc to 100 if not found
+                price = prediction([age, model_code, company_code, cc])
+                
+                st.write(f"Predicted price for the bike is: ₹{price:.2f}")
 
-            yrdays = Year * 365
-            mondays = Month * 30
-            total = yrdays + mondays
-            
-            currmon = datetime.now().month
-            curryy = datetime.now().year
-            yrdays1 = curryy * 365
-            mondays1 = currmon * 30
-            total1 = yrdays1 + mondays1
-            
-            final = (total1 - total) / 365
+                # Store the details in the database
+                bike_record = Bike(
+                    make=st.session_state.company,
+                    model=st.session_state.model,
+                    year=Year,
+                    month=Month,
+                    kms_run=kms_run,
+                    predicted_price=price
+                )
+                bike_record.save()
 
-            base_price = prediction([final, model_code, company_code, float(cc_value)])
-
-            st.markdown("<h3 class='sub-header'>Resale value of {} {} in Delhi</h3>".format(selected_company, selected_model), unsafe_allow_html=True)
-            st.markdown("<p>The value given below is an estimated value only. Actual value may vary depending on the condition of the two-wheeler and several other factors.</p>", unsafe_allow_html=True)
-
-            conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
-            condition_factors = {
-                "Bad": 0.85,
-                "Fair": 0.95,
-                "Good": 1.0,
-                "Very Good": 1.07,
-                "Excellent": 1.14
-            }
-
-            col1, col2, col3, col4, col5 = st.columns(5)
-            columns = [col1, col2, col3, col4, col5]
-
-            condition_level = None
-
-            for i, (condition, col) in enumerate(zip(conditions, columns)):
-                if col.button(condition, key=f"condition_{i}"):
-                    if condition == "Bad":
-                        st.warning("We don't deal in bad condition.")
-                        condition_level = -1
-                    else:
-                        condition_level = i
-
-            if condition_level is not None and condition_level != -1:
-                condition_factor = condition_factors[conditions[condition_level]]
-                min_price = base_price * condition_factor
-                max_price = min_price * 1.07  # Assuming a 7% range for upper limit
-
-                st.markdown(f"""
-                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                     <h3 style="color: #276bf2;">Automobile in {conditions[condition_level]} Condition is valued at</h3>
-                     <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-                </div>
-                """, unsafe_allow_html=True)
-
-    # Hide Streamlit elements
-    st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stDeployButton {display: none !important;}
-    .viewerBadge_container__1QSob {display: none !important;}
-    .stToolbar {display: none !important;}
-    </style>
-    """, unsafe_allow_html=True)
+                st.success("Details have been saved successfully.")
 
 if __name__ == "__main__":
     main()
