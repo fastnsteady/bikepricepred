@@ -195,8 +195,8 @@ def main():
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
-    st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a second-hand bike.</p>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sub-header'>Find the right and best price of your bike</h2>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'company' not in st.session_state:
@@ -275,7 +275,7 @@ def main():
                     max_price = min_price * 1.03
                     st.session_state.price_range = (min_price, max_price)
 
-                    st.success(f"The predicted base price is: ₹{base_price:.2f}")
+                    #st.success(f"The predicted base price is: ₹{base_price:.2f}")
                     st.session_state.base_price_predicted = True
 
     if st.session_state.base_price_predicted:
