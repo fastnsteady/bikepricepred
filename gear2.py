@@ -173,6 +173,111 @@ def prediction(var):
     pred = pred1 * 1.10  # Applying 35% increase
     return pred[0]
 
+
+condition_gauge_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bike Condition Gauge</title>
+<style>
+    .gauge-container {
+        width: 200px;
+        margin: 0 auto;
+    }
+    .gauge {
+        width: 100%;
+        height: 100px;
+        position: relative;
+        overflow: hidden;
+    }
+    .gauge:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        border-radius: 100% 100% 0 0;
+        background: conic-gradient(
+            from 180deg,
+            #ff0000 0deg 45deg,
+            #ff7f00 45deg 90deg,
+            #ffff00 90deg 117deg,
+            #cccc00 117deg 144deg,
+            #00ff00 144deg 180deg
+        );
+    }
+    .gauge-mask {
+        width: 100%;
+        height: 100px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #fff;
+        transform-origin: center bottom;
+        transition: transform 0.5s ease-in-out;
+    }
+    .needle {
+        width: 2px;
+        height: 65px;
+        background: #000;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform-origin: bottom center;
+        transition: transform 0.5s ease-in-out;
+    }
+    .gauge-value {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .gauge-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #666;
+    }
+</style>
+</head>
+<body>
+<div class="gauge-container">
+    <div class="gauge">
+        <div class="gauge-mask" id="gaugeMask"></div>
+        <div class="needle" id="gaugeNeedle"></div>
+        <div class="gauge-value" id="gaugeValue"></div>
+    </div>
+    <div class="gauge-labels">
+        <span>Bad</span>
+        <span>Excellent</span>
+    </div>
+</div>
+<script>
+    function updateGauge(condition) {
+        const conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent'];
+        const index = conditions.indexOf(condition);
+        const angle = index * 45; // 180 degrees / 4 sections = 45 degrees per section
+
+        const gaugeMask = document.getElementById('gaugeMask');
+        const gaugeNeedle = document.getElementById('gaugeNeedle');
+        const gaugeValue = document.getElementById('gaugeValue');
+
+        gaugeMask.style.transform = `rotate(${180 - angle}deg)`;
+        gaugeNeedle.style.transform = `rotate(${angle}deg)`;
+        gaugeValue.textContent = condition;
+    }
+</script>
+</body>
+</html>
+"""
+
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
 
@@ -279,168 +384,64 @@ def main():
                     st.success(f"The predicted base price is: ₹{base_price:.2f}")
                     st.session_state.base_price_predicted = True
 
-    # HTML content for the interactive condition display
-    condition_gauge_html = """
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Condition Gauge</title>
-    <style>
-        .gauge-container {
-            width: 200px;
-            margin: 0 auto;
-        }
-        .gauge {
-            width: 100%;
-            height: 100px;
-            position: relative;
-            overflow: hidden;
-        }
-        .gauge:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 200px;
-            border-radius: 100% 100% 0 0;
-            background: conic-gradient(
-                from 180deg,
-                #ff0000 0deg 45deg,
-                #ff7f00 45deg 90deg,
-                #ffff00 90deg 117deg,
-                #cccc00 117deg 144deg,
-                #00ff00 144deg 180deg
-            );
-        }
-        .gauge-mask {
-            width: 100%;
-            height: 100px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: #fff;
-            transform-origin: center bottom;
-            transition: transform 0.5s ease-in-out;
-        }
-        .needle {
-            width: 2px;
-            height: 65px;
-            background: #000;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform-origin: bottom center;
-            transition: transform 0.5s ease-in-out;
-        }
-        .gauge-value {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .gauge-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="gauge-container">
-        <div class="gauge">
-            <div class="gauge-mask" id="gaugeMask"></div>
-            <div class="needle" id="gaugeNeedle"></div>
-            <div class="gauge-value" id="gaugeValue"></div>
-        </div>
-        <div class="gauge-labels">
-            <span>Bad</span>
-            <span>Excellent</span>
-        </div>
-    </div>
+    if st.session_state.base_price_predicted:
+        conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
+        cols = st.columns(len(conditions))
 
-    <script>
-        function updateGauge(condition) {
-            const conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent'];
-            const index = conditions.indexOf(condition);
-            const angle = index * 45; // 180 degrees / 4 sections = 45 degrees per section
+        # Create two columns: one for the gauge and one for the price info
+        gauge_col, info_col = st.columns([1, 2])
 
-            const gaugeMask = document.getElementById('gaugeMask');
-            const gaugeNeedle = document.getElementById('gaugeNeedle');
-            const gaugeValue = document.getElementById('gaugeValue');
+        with gauge_col:
+            # Render the gauge
+            components.html(condition_gauge_html, height=150)
 
-            gaugeMask.style.transform = `rotate(${180 - angle}deg)`;
-            gaugeNeedle.style.transform = `rotate(${angle}deg)`;
-            gaugeValue.textContent = condition;
-        }
-
-        // Example usage:
-        // updateGauge('Good');
-    </script>
-</body>
-</html>
-    """
-
-if st.session_state.base_price_predicted:
-    conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
-    cols = st.columns(len(conditions))
-
-    # Create two columns: one for the gauge and one for the price info
-    gauge_col, info_col = st.columns([1, 2])
-
-    with gauge_col:
-        # Render the gauge
-        components.html(condition_gauge_html, height=150)
-
-    for i, (condition, col) in enumerate(zip(conditions, cols)):
-        if col.button(condition, key=f"condition_{i}"):
-            st.session_state.condition_level = i
-            if condition == "Bad":
-                st.session_state.bad_condition_selected = True
-            else:
-                st.session_state.bad_condition_selected = False
-                # Calculate price range for the selected condition
-                if condition == "Good":
-                    min_price = st.session_state.current_price
-                elif condition == "Fair":
-                    min_price = st.session_state.current_price * 0.93
+        for i, (condition, col) in enumerate(zip(conditions, cols)):
+            if col.button(condition, key=f"condition_{i}"):
+                st.session_state.condition_level = i
+                if condition == "Bad":
+                    st.session_state.bad_condition_selected = True
                 else:
-                    prev_min_price = st.session_state.price_range[0]
-                    min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
+                    st.session_state.bad_condition_selected = False
+                    # Calculate price range for the selected condition
+                    if condition == "Good":
+                        min_price = st.session_state.current_price
+                    elif condition == "Fair":
+                        min_price = st.session_state.current_price * 0.93
+                    else:
+                        prev_min_price = st.session_state.price_range[0]
+                        min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
 
-                max_price = min_price * 1.03
-                st.session_state.price_range = (min_price, max_price)
+                    max_price = min_price * 1.03
+                    st.session_state.price_range = (min_price, max_price)
 
-            # Update the gauge
-            components.html(
-                f"<script>updateGauge('{condition}')</script>",
-                height=0,
-            )
+                # Update the gauge
+                gauge_update_script = f"""
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {{
+                        updateGauge('{condition}');
+                    }});
+                </script>
+                """
+                components.html(gauge_update_script, height=0)
 
-    # Display price range or warning
-    with info_col:
-        if st.session_state.condition_level is not None:
-            if st.session_state.bad_condition_selected:
-                st.markdown(f"""
-                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                    <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition</h3>
-                    <p class="warning-text">We don't deal in bad condition bikes.</p>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                min_price, max_price = st.session_state.price_range
-                st.markdown(f"""
-                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                    <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-                    <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-                </div>
-                """, unsafe_allow_html=True)
+        # Display price range or warning
+        with info_col:
+            if st.session_state.condition_level is not None:
+                if st.session_state.bad_condition_selected:
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                        <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition</h3>
+                        <p class="warning-text">We don't deal in bad condition bikes.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    min_price, max_price = st.session_state.price_range
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                        <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                        <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
+
 if __name__ == "__main__":
     main()
