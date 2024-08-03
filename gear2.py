@@ -279,9 +279,76 @@ def main():
                     st.success(f"The predicted base price is: ₹{base_price:.2f}")
                     st.session_state.base_price_predicted = True
 
-    # Load the HTML for the interactive condition display
-    with open("interactive_condition_display.html", "r") as file:
-        interactive_html = file.read()
+    # HTML content for the interactive condition display
+    interactive_html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bike Condition Meter</title>
+        <style>
+            .container {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                height: 200px;
+            }
+            .meter {
+                width: 200px;
+                height: 100px;
+                background: #f0f0f0;
+                border-radius: 100px 100px 0 0;
+                overflow: hidden;
+                position: relative;
+            }
+            .meter-fill {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(to top, #ff4d4d, #ffff4d, #4dff4d);
+                transition: height 0.5s ease-in-out;
+            }
+            .bike {
+                width: 100px;
+                height: 100px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                transition: transform 0.5s ease-in-out;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="meter">
+                <div class="meter-fill" id="meterFill"></div>
+            </div>
+            <div class="bike" id="bikeImage"></div>
+        </div>
+
+        <script>
+            const conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            const meterFill = document.getElementById('meterFill');
+            const bikeImage = document.getElementById('bikeImage');
+
+            function updateDisplay(condition) {
+                const index = conditions.indexOf(condition);
+                const fillPercentage = index * 25;
+                meterFill.style.height = `${fillPercentage}%`;
+
+                // Update bike image and animation
+                bikeImage.style.backgroundImage = `url('https://api.dicebear.com/6.x/bottts/svg?seed=bike${index}')`;
+                bikeImage.style.transform = `scale(${1 + index * 0.1}) rotate(${index * 5}deg)`;
+            }
+
+            // Example usage:
+            // updateDisplay('Good');
+        </script>
+    </body>
+    </html>
+    """
 
     # Condition buttons
     if st.session_state.base_price_predicted:
