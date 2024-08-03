@@ -36,10 +36,7 @@ bike_companies = {
             "V15": 1062
         }
     },
-    "GEM": {
-        "code": 2,
-        "models": {}
-    },
+ 
     "Hero": {
         "code": 3,
         "models": {
@@ -248,10 +245,6 @@ def main():
             st.session_state.current_price = base_price
             st.session_state.condition_level = 2  # Start at "Good" condition
 
-            # Store the input and predicted price in the database
-            new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model, predicted_price=base_price)
-        
-
             st.markdown("<h3 class='sub-header'>Resale value of {} {} in Delhi</h3>".format(selected_company, selected_model), unsafe_allow_html=True)
             st.markdown("<p>The value given below is an estimated value only. Actual value may vary depending on the condition of the two-wheeler and several other factors.</p>", unsafe_allow_html=True)
 
@@ -269,10 +262,7 @@ def main():
 
             for i, (condition, col) in enumerate(zip(conditions, columns)):
                 if col.button(condition, key=f"condition_{i}"):
-                    if condition == "Bad":
-                        st.session_state.condition_level = -1
-                    else:
-                        st.session_state.condition_level = i
+                    st.session_state.condition_level = i
 
             if st.session_state.condition_level == -1:
                 st.warning("We don't deal in bad condition.")
