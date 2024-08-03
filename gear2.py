@@ -250,19 +250,7 @@ def main():
                 
                 st.write(f"Predicted price for the bike is: ₹{price:.2f}")
 
-                # Store the details in the database
-                bike_record = Bike(
-                    make=st.session_state.company,
-                    model=st.session_state.model,
-                    year=Year,
-                    month=Month,
-                    kms_run=kms_run,
-                    predicted_price=price
-                )
-                session.add(bike_record)
-                session.commit()
-
-                st.success("Details have been saved successfully.")
+               
 
 if __name__ == "__main__":
     main()
