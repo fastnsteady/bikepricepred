@@ -174,6 +174,7 @@ def prediction(var):
     return pred[0]
 
 
+
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
 
@@ -241,8 +242,6 @@ def main():
             else:
                 st.warning(f"Company {st.session_state.company} not found.")
                 selected_model = "Select Model"
-        else:
-            selected_model = "Select Model"
 
     col3, col4 = st.columns(2)
 
@@ -412,16 +411,16 @@ def main():
                         min_price = st.session_state.current_price
                     elif condition == "Fair":
                         min_price = st.session_state.current_price * 0.93
-                    else:
-                        prev_min_price = st.session_state.price_range[0]
-                        min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
-
+                    elif condition == "Very Good":
+                        min_price = st.session_state.current_price * 1.07
+                    elif condition == "Excellent":
+                        min_price = st.session_state.current_price * 1.15
                     max_price = min_price * 1.03
                     st.session_state.price_range = (min_price, max_price)
 
         with gauge_col:
             # Render the gauge
-            components.iframe(srcdoc=get_condition_gauge_html(conditions[st.session_state.condition_level]), height=200, scrolling=False)
+            components.html(get_condition_gauge_html(conditions[st.session_state.condition_level]), height=200, scrolling=False)
 
         with info_col:
             if st.session_state.condition_level is not None:
