@@ -223,7 +223,10 @@ def main():
             st.session_state.condition_level = 2  # Start at "Good" condition
             st.success(f"The predicted base price is: ₹{base_price:.2f}")
 
-           
+            # Store the input and predicted price in the database
+            new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model if model_code else "N/A", predicted_price=base_price)
+            session.add(new_bike)
+            session.commit()
 
     # Condition buttons and price display
     if 'current_price' in st.session_state:
