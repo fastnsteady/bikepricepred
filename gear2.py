@@ -171,82 +171,88 @@ def prediction(var):
     return pred[0]
 
 def main():
-    st.title("BikesPe")
-
-    # Getting input data from user
-    Year = st.number_input("Enter the year", min_value=2004, max_value=datetime.now().year, value=2015)
-    Month = st.number_input("Enter the month", min_value=1, max_value=12, value=1)
+    st.set_page_config(page_title="BikesPe", layout="wide")
     
-    yrdays = Year * 365
-    mondays = Month * 30
-    total = yrdays + mondays
-    
-    currmon = datetime.now().month
-    curryy = datetime.now().year
-    yrdays1 = curryy * 365
-    mondays1 = currmon * 30
-    total1 = yrdays1 + mondays1
-    
-    final = (total1 - total) / 365
+    st.markdown("""
+    <style>
+    .main-header {text-align: center; color: #276bf2;}
+    .sub-header {text-align: center; color: #4a4a4a;}
+    .stButton>button {
+        width: 100%;
+        background-color: #276bf2;
+        color: white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # Create the dropdown for company selection
-    selected_company = st.selectbox(
-        "Select Make",
-        ["Select Make"] + list(bike_companies.keys())
-    )
+    st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
 
-    # Model selection based on selected company
-    model_code = None
-    cc_value = None
-    if selected_company != "Select Make":
-        company_models = bike_companies[selected_company]["models"]
-        if company_models:
-            selected_model = st.selectbox(
-                "Select Model",
-                ["Select Model"] + list(company_models.keys())
-            )
-            if selected_model != "Select Model":
-                model_code = company_models[selected_model]
-                cc_value = cc_data.get(model_code, "Unknown")
-                st.write(f"The CC value for the selected model is: {cc_value}")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        selected_company = st.selectbox(
+            "Select Make",
+            ["Select Make"] + list(bike_companies.keys())
+        )
+
+    with col2:
+        if selected_company != "Select Make":
+            company_models = bike_companies[selected_company]["models"]
+            if company_models:
+                selected_model = st.selectbox(
+                    "Select Model",
+                    ["Select Model"] + list(company_models.keys())
+                )
+            else:
+                st.warning(f"No models available for {selected_company}")
+                selected_model = "Select Model"
         else:
-            st.warning(f"No models available for {selected_company}")
+            selected_model = "Select Model"
 
-    # Predict base price
-    if st.button("Predict Base Price"):
-        if selected_company == "Select Make" or (model_code is None and bike_companies[selected_company]["models"]):
-            st.error("Please select both company and model (if available).")
+    col3, col4 = st.columns(2)
+
+    with col3:
+        Year = st.number_input("Year", min_value=2004, max_value=datetime.now().year, value=2015)
+
+    with col4:
+        Month = st.number_input("Month", min_value=1, max_value=12, value=1)
+
+    kms_run = st.number_input("KMs Run", min_value=0, value=0)
+
+    if st.button("Check Price"):
+        if selected_company == "Select Make" or selected_model == "Select Model":
+            st.error("Please select both company and model.")
         else:
             company_code = bike_companies[selected_company]["code"]
-            base_price = prediction([final, model_code or 0, company_code, float(cc_value or 0)])
+            model_code = bike_companies[selected_company]["models"][selected_model]
+            cc_value = cc_data.get(model_code, 0)
+
+            yrdays = Year * 365
+            mondays = Month * 30
+            total = yrdays + mondays
+            
+            currmon = datetime.now().month
+            curryy = datetime.now().year
+            yrdays1 = curryy * 365
+            mondays1 = currmon * 30
+            total1 = yrdays1 + mondays1
+            
+            final = (total1 - total) / 365
+
+            base_price = prediction([final, model_code, company_code, float(cc_value)])
             st.session_state.current_price = base_price
             st.session_state.condition_level = 2  # Start at "Good" condition
-            st.success(f"The predicted base price is: ₹{base_price:.2f}")
 
             # Store the input and predicted price in the database
-            new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model if model_code else "N/A", predicted_price=base_price)
-            session.add(new_bike)
-            session.commit()
-
-    # Condition buttons and price display
-    if 'current_price' in st.session_state:
-        conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
+            new_bike = Bike(year=Year, month=Month, yeardiff=final, cc=cc_value, company=selected_company, model=selected_model, predicted_price=base_price)
         
-        col1, col2, col3, col4, col5 = st.columns(5)
-        columns = [col1, col2, col3, col4, col5]
 
-        for i, (condition, col) in enumerate(zip(conditions, columns)):
-            if col.button(condition, key=f"condition_{i}"):
-                if condition == "Bad":
-                    st.session_state.condition_level = -1
-                else:
-                    st.session_state.condition_level = i
+            st.markdown("<h3 class='sub-header'>Resale value of {} {} in Delhi</h3>".format(selected_company, selected_model), unsafe_allow_html=True)
+            st.markdown("<p>The value given below is an estimated value only. Actual value may vary depending on the condition of the two-wheeler and several other factors.</p>", unsafe_allow_html=True)
 
-        # Display message for bad condition
-        if st.session_state.condition_level == -1:
-            st.warning("We don't deal in bad condition.")
-        else:
-            # Calculate price range based on condition
+            conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
             condition_factors = {
                 "Bad": 0.85,
                 "Fair": 0.95,
@@ -254,19 +260,30 @@ def main():
                 "Very Good": 1.07,
                 "Excellent": 1.14
             }
-            
-            selected_condition = conditions[st.session_state.condition_level]
-            condition_factor = condition_factors.get(selected_condition, 1.0)
-            
-            min_price = st.session_state.current_price * condition_factor
-            max_price = min_price * (1 + (0.07 if st.session_state.condition_level > 2 else 0.015))  # 7% for better than good, 1.5% for good or worse
 
-            st.markdown(f"""
-            <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                 <h3 style="color: #276bf2;">Automobile to dealer in {selected_condition} Condition is valued at</h3>
-                 <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-            </div>
-            """, unsafe_allow_html=True)
+            col1, col2, col3, col4, col5 = st.columns(5)
+            columns = [col1, col2, col3, col4, col5]
+
+            for i, (condition, col) in enumerate(zip(conditions, columns)):
+                if col.button(condition, key=f"condition_{i}"):
+                    if condition == "Bad":
+                        st.session_state.condition_level = -1
+                    else:
+                        st.session_state.condition_level = i
+
+            if st.session_state.condition_level == -1:
+                st.warning("We don't deal in bad condition.")
+            else:
+                condition_factor = condition_factors[conditions[st.session_state.condition_level]]
+                min_price = st.session_state.current_price * condition_factor
+                max_price = min_price * 1.07  # Assuming a 7% range for upper limit
+
+                st.markdown(f"""
+                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                     <h3 style="color: #276bf2;">Automobile in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                     <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+                </div>
+                """, unsafe_allow_html=True)
 
     # Hide Streamlit elements
     st.markdown("""
