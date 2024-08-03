@@ -175,84 +175,6 @@ def prediction(var):
 
 
 
-def get_condition_gauge_html(condition):
-    conditions = ['Bad', 'Fair', 'Good', 'Very Good', 'Excellent']
-    colors = {
-        'Bad': '#ff0000',
-        'Fair': '#ff7f00',
-        'Good': '#ffff00',
-        'Very Good': '#cccc00',
-        'Excellent': '#00ff00'
-    }
-    angle = conditions.index(condition) * 36  # 180 degrees / 5 conditions = 36 degrees per condition
-    
-    return f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Condition Gauge</title>
-    <style>
-        .gauge-container {{
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-            position: relative;
-        }}
-        .gauge {{
-            width: 100%;
-            height: 150px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 150px 150px 0 0;
-            background: {colors[condition]};
-            transform: rotate(180deg);
-            transform-origin: bottom;
-        }}
-        .needle {{
-            width: 2px;
-            height: 80px;
-            background: #000;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform-origin: bottom center;
-            transform: rotate({angle}deg);
-        }}
-        .gauge-value {{
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }}
-        .gauge-labels {{
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
-        }}
-    </style>
-    </head>
-    <body>
-    <div class="gauge-container">
-        <div class="gauge">
-            <div class="needle"></div>
-            <div class="gauge-value">{condition}</div>
-        </div>
-        <div class="gauge-labels">
-            <span>Bad</span>
-            <span>Excellent</span>
-        </div>
-    </div>
-    </body>
-    </html>
-    """
-
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
 
@@ -382,11 +304,6 @@ def main():
                         min_price = st.session_state.current_price * 1.15
                     max_price = min_price * 1.03
                     st.session_state.price_range = (min_price, max_price)
-
-        with gauge_col:
-            # Render the gauge
-            gauge_html = get_condition_gauge_html(conditions[st.session_state.condition_level])
-            components.html(gauge_html, height=250, scrolling=False)
 
         with info_col:
             if st.session_state.condition_level is not None:
