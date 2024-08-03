@@ -12,6 +12,7 @@ import pandas as pd
 import sqlite3
 import streamlit as st
 from datetime import datetime
+import streamlit.components.v1 as components
 
 # Ensure setupdb.py is in the same directory and properly configured
 
@@ -169,7 +170,7 @@ def prediction(var):
                                    dtype=float)
     
     pred1 = loadmodel.predict(input_variables)
-    pred = pred1 * 1.05  # Applying 35% increase
+    pred = pred1 * 1.10  # Applying 35% increase
     return pred[0]
 
 def main():
@@ -278,6 +279,10 @@ def main():
                     st.success(f"The predicted base price is: ₹{base_price:.2f}")
                     st.session_state.base_price_predicted = True
 
+    # Load the HTML for the interactive condition display
+    with open("interactive_condition_display.html", "r") as file:
+        interactive_html = file.read()
+
     # Condition buttons
     if st.session_state.base_price_predicted:
         conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
@@ -301,6 +306,9 @@ def main():
                     max_price = min_price * 1.03
                     st.session_state.price_range = (min_price, max_price)
 
+                # Update the interactive display
+                components.html(interactive_html + f"<script>updateDisplay('{condition}')</script>", height=250)
+
         # Display price range or warning
         if st.session_state.condition_level is not None:
             if st.session_state.bad_condition_selected:
@@ -318,6 +326,5 @@ def main():
                     <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
                 </div>
                 """, unsafe_allow_html=True)
-
 if __name__ == "__main__":
     main()
