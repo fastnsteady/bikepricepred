@@ -174,7 +174,7 @@ def prediction(var):
 
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
-    
+
     st.markdown("""
     <style>
     .main-header {text-align: center; color: #276bf2;}
@@ -200,9 +200,11 @@ def main():
         st.session_state.condition_level = None
     if 'price_range' not in st.session_state:
         st.session_state.price_range = (0, 0)
+    if 'current_price' not in st.session_state:
+        st.session_state.current_price = 0
 
     col1, col2 = st.columns(2)
-    
+
     with col1:
         selected_company = st.selectbox(
             "Select Make",
@@ -214,16 +216,20 @@ def main():
 
     with col2:
         if st.session_state.company:
-            company_models = bike_companies[st.session_state.company]["models"]
-            if company_models:
-                selected_model = st.selectbox(
-                    "Select Model",
-                    ["Select Model"] + list(company_models.keys())
-                )
-                if selected_model != st.session_state.model:
-                    st.session_state.model = selected_model
+            if st.session_state.company in bike_companies:
+                company_models = bike_companies[st.session_state.company].get("models", {})
+                if company_models:
+                    selected_model = st.selectbox(
+                        "Select Model",
+                        ["Select Model"] + list(company_models.keys())
+                    )
+                    if selected_model != st.session_state.model:
+                        st.session_state.model = selected_model
+                else:
+                    st.warning(f"No models available for {st.session_state.company}")
+                    selected_model = "Select Model"
             else:
-                st.warning(f"No models available for {st.session_state.company}")
+                st.warning(f"Company {st.session_state.company} not found.")
                 selected_model = "Select Model"
         else:
             selected_model = "Select Model"
@@ -242,25 +248,26 @@ def main():
         if st.session_state.company == "Select Make" or st.session_state.model == "Select Model":
             st.warning("Please select a valid make and model.")
         else:
-            company_code = bike_companies[st.session_state.company]["code"]
-            model_code = bike_companies[st.session_state.company]["models"].get(st.session_state.model, None)
-            if model_code is None:
-                st.warning(f"Model {st.session_state.model} not found for {st.session_state.company}.")
-            else:
-                current_year = datetime.now().year
-                age = current_year - Year
-                cc = cc_data.get(model_code, 100)  # Defaulting cc to 100 if not found
-                base_price = prediction([age, model_code, company_code, cc])
-                
-                st.session_state.current_price = base_price
-                st.session_state.condition_level = 2  # Default to "Good"
-                
-                # Set the initial price range for "Good" condition
-                min_price = base_price
-                max_price = min_price * 1.03
-                st.session_state.price_range = (min_price, max_price)
+            if st.session_state.company in bike_companies:
+                company_code = bike_companies[st.session_state.company]["code"]
+                model_code = bike_companies[st.session_state.company]["models"].get(st.session_state.model, None)
+                if model_code is None:
+                    st.warning(f"Model {st.session_state.model} not found for {st.session_state.company}.")
+                else:
+                    current_year = datetime.now().year
+                    age = current_year - Year
+                    cc = cc_data.get(model_code, 100)  # Defaulting cc to 100 if not found
+                    base_price = prediction([age, model_code, company_code, cc])
+                    
+                    st.session_state.current_price = base_price
+                    st.session_state.condition_level = 2  # Default to "Good"
+                    
+                    # Set the initial price range for "Good" condition
+                    min_price = base_price
+                    max_price = min_price * 1.03
+                    st.session_state.price_range = (min_price, max_price)
 
-                st.success(f"The predicted base price is: ₹{base_price:.2f}")
+                    st.success(f"The predicted base price is: ₹{base_price:.2f}")
 
     # Condition buttons
     conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
