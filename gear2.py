@@ -192,7 +192,7 @@ def main():
 
     st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a secondhand bike.</p>", unsafe_allow_html=True)
-    st.markdown("<h2 class='sub-header'>Find the right and best price for your bike</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sub-header'>Find the right price of a used bike</h2>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'company' not in st.session_state:
@@ -205,6 +205,8 @@ def main():
         st.session_state.price_range = (0, 0)
     if 'current_price' not in st.session_state:
         st.session_state.current_price = 0
+    if 'base_price_predicted' not in st.session_state:
+        st.session_state.base_price_predicted = False
 
     col1, col2 = st.columns(2)
 
@@ -237,7 +239,6 @@ def main():
         else:
             selected_model = "Select Model"
 
-    # Rest of your code remains unchanged
     col3, col4 = st.columns(2)
 
     with col3:
@@ -272,38 +273,40 @@ def main():
                     st.session_state.price_range = (min_price, max_price)
 
                     st.success(f"The predicted base price is: ₹{base_price:.2f}")
+                    st.session_state.base_price_predicted = True
 
     # Condition buttons
-    conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
-    cols = st.columns(len(conditions))
-    for i, (condition, col) in enumerate(zip(conditions, cols)):
-        if col.button(condition, key=f"condition_{i}"):
-            if condition == "Bad":
-                st.warning("We don't deal in bad condition bikes.")
-            else:
-                st.session_state.condition_level = i
-
-                # Calculate price range for the selected condition
-                if condition == "Good":
-                    min_price = st.session_state.current_price
-                elif condition == "Fair":
-                    min_price = st.session_state.current_price * 0.93
+    if st.session_state.base_price_predicted:
+        conditions = ["Bad", "Fair", "Good", "Very Good", "Excellent"]
+        cols = st.columns(len(conditions))
+        for i, (condition, col) in enumerate(zip(conditions, cols)):
+            if col.button(condition, key=f"condition_{i}"):
+                if condition == "Bad":
+                    st.warning("We don't deal in bad condition bikes.")
                 else:
-                    prev_min_price = st.session_state.price_range[0]
-                    min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
+                    st.session_state.condition_level = i
 
-                max_price = min_price * 1.03
-                st.session_state.price_range = (min_price, max_price)
+                    # Calculate price range for the selected condition
+                    if condition == "Good":
+                        min_price = st.session_state.current_price
+                    elif condition == "Fair":
+                        min_price = st.session_state.current_price * 0.93
+                    else:
+                        prev_min_price = st.session_state.price_range[0]
+                        min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
 
-    # Display price range
-    if st.session_state.condition_level is not None and st.session_state.condition_level > 0:
-        min_price, max_price = st.session_state.price_range
-        st.markdown(f"""
-        <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-             <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-             <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-        </div>
-        """, unsafe_allow_html=True)
+                    max_price = min_price * 1.03
+                    st.session_state.price_range = (min_price, max_price)
+
+        # Display price range
+        if st.session_state.condition_level is not None and st.session_state.condition_level > 0:
+            min_price, max_price = st.session_state.price_range
+            st.markdown(f"""
+            <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                 <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                 <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+            </div>
+            """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
