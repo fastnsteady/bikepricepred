@@ -14,7 +14,7 @@ import streamlit as st
 from datetime import datetime
 
 # Ensure setupdb.py is in the same directory and properly configured
-from setupdb import Bike
+
 
 # Create a SQLite database connection
 
