@@ -328,7 +328,7 @@ def main():
             if st.session_state.bad_condition_selected:
                 st.markdown(f"""
                 <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
-                    <h3 style="color: #276bf2;"> value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition</h3>
+                    <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition</h3>
                     <p class="warning-text">We don't deal in bad condition bikes.</p>
                 </div>
                 """, unsafe_allow_html=True)
