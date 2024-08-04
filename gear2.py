@@ -258,11 +258,10 @@ def main():
 
     col3, col4 = st.columns(2)
 
-    col3, col4 = st.columns(2)
-
     with col3:
         current_year = datetime.now().year
-        Year = st.number_input("Year", min_value=2004, max_value=current_year, value=2015)
+        year_options = range(current_year - 16, current_year + 1)
+        Year = st.selectbox("Year", options=reversed(list(year_options)), index=0)
 
     with col4:
         available_months = get_available_months(Year)
@@ -285,11 +284,11 @@ def main():
                 if model_code is None:
                     st.warning(f"Model {st.session_state.model} not found for {st.session_state.company}.")
                 else:
-                    current_year = datetime.now().year
                     age = current_year - Year
                     cc = cc_data.get(model_code, 100)  # Defaulting cc to 100 if not found
                     base_price = prediction([age, model_code, company_code, cc])
                     
+
                     st.session_state.current_price = base_price
                     st.session_state.condition_level = 2  # Default to "Good"
                     
