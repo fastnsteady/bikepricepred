@@ -161,7 +161,21 @@ cc_data = {
     1057: 125, 1058: 150, 1059: 110, 1060: 150, 1061: 200, 1062: 150, 1063: 160, 1064: 110, 
     1065: 150
 }
-
+month_dict = {
+    "January": 1, "February": 2, "March": 3, "April": 4,
+    "May": 5, "June": 6, "July": 7, "August": 8,
+    "September": 9, "October": 10, "November": 11, "December": 12
+}
+def get_available_months(selected_year):
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    
+    if selected_year < current_year:
+        return list(month_dict.keys())
+    elif selected_year == current_year:
+        return list(month_dict.keys())[:current_month]
+    else:
+        return []
 # Prediction function
 # Prediction function with 35% increase for base price
 def prediction(var):
@@ -196,7 +210,7 @@ def main():
 
     st.markdown("<h1 class='main-header'>BikesPe</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Knowing the correct market price helps you take a wise decision while buying or selling a second-hand bike.</p>", unsafe_allow_html=True)
-    st.markdown("<h2 class='sub-header'>Find the right and best price of your bike</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sub-header'>Get the right and best price of your bike</h2>", unsafe_allow_html=True)
 
     # Initialize session state
     if 'company' not in st.session_state:
@@ -244,17 +258,26 @@ def main():
 
     col3, col4 = st.columns(2)
 
+    col3, col4 = st.columns(2)
+
     with col3:
-        Year = st.number_input("Year", min_value=2004, max_value=datetime.now().year, value=2015)
+        current_year = datetime.now().year
+        Year = st.number_input("Year", min_value=2004, max_value=current_year, value=2015)
 
     with col4:
-        Month = st.number_input("Month", min_value=1, max_value=12, value=1)
+        available_months = get_available_months(Year)
+        if available_months:
+            selected_month = st.selectbox("Month", available_months)
+            Month = month_dict[selected_month]  # Convert month name to number
+        else:
+            st.warning("No months available for the selected year.")
+            Month = None
 
     kms_run = st.number_input("KMs Run", min_value=0, value=0)
 
     if st.button("Check Price"):
-        if st.session_state.company == "Select Make" or st.session_state.model == "Select Model":
-            st.warning("Please select a valid make and model.")
+        if st.session_state.company == "Select Make" or st.session_state.model == "Select Model" or Month is None:
+            st.warning("Please select a valid make, model, and month.")
         else:
             if st.session_state.company in bike_companies:
                 company_code = bike_companies[st.session_state.company]["code"]
