@@ -214,6 +214,13 @@ def main():
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .warning-text {color: #ff0000; font-size: 14px; text-align: center;}
+    .full-width-box {
+        width: 100%;
+        padding: 10px;
+        background-color: #f0f2f6;
+        border-radius: 5px;
+        text-align: center;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -321,7 +328,7 @@ def main():
         if st.session_state.condition_level is not None:
             if st.session_state.bad_condition_selected:
                 st.markdown(f"""
-                <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 5px;">
+                <div class="full-width-box">
                     <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition</h3>
                     <p class="warning-text">We don't deal in bad condition bikes.</p>
                 </div>
@@ -329,11 +336,11 @@ def main():
             else:
                 min_price, max_price = st.session_state.price_range
                 st.markdown(f"""
-    <div class="full-width-box">
-        <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
-        <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
-    </div>
-""", unsafe_allow_html=True)
+                <div class="full-width-box">
+                    <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
+                    <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
+                </div>
+                """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
