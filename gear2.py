@@ -188,7 +188,16 @@ def prediction(var):
     return pred[0]
 
 
-
+def calculate_price_range(base_price, condition):
+    condition_factors = {
+        "Bad": (0.80, 0.85),
+        "Fair": (0.90, 0.95),
+        "Good": (1.00, 1.03),
+        "Very Good": (1.10, 1.15),
+        "Excellent": (1.20, 1.25)
+    }
+    min_factor, max_factor = condition_factors[condition]
+    return (base_price * min_factor, base_price * max_factor)
 def main():
     st.set_page_config(page_title="BikesPe", layout="wide")
 
@@ -284,20 +293,16 @@ def main():
                 if model_code is None:
                     st.warning(f"Model {st.session_state.model} not found for {st.session_state.company}.")
                 else:
+                    current_year = datetime.now().year
                     age = current_year - Year
                     cc = cc_data.get(model_code, 100)  # Defaulting cc to 100 if not found
                     base_price = prediction([age, model_code, company_code, cc])
                     
-
                     st.session_state.current_price = base_price
                     st.session_state.condition_level = 2  # Default to "Good"
                     
                     # Set the initial price range for "Good" condition
-                    min_price = base_price
-                    max_price = min_price * 1.03
-                    st.session_state.price_range = (min_price, max_price)
-
-                    #st.success(f"The predicted base price is: ₹{base_price:.2f}")
+                    st.session_state.price_range = calculate_price_range(base_price, "Good")
                     st.session_state.base_price_predicted = True
 
     if st.session_state.base_price_predicted:
@@ -310,17 +315,7 @@ def main():
                     st.session_state.bad_condition_selected = True
                 else:
                     st.session_state.bad_condition_selected = False
-                    # Calculate price range for the selected condition
-                    if condition == "Good":
-                        min_price = st.session_state.current_price
-                    elif condition == "Fair":
-                        min_price = st.session_state.current_price * 0.93
-                    else:
-                        prev_min_price = st.session_state.price_range[0]
-                        min_price = prev_min_price * 0.93 if condition == "Fair" else prev_min_price * 1.07
-
-                    max_price = min_price * 1.03
-                    st.session_state.price_range = (min_price, max_price)
+                    st.session_state.price_range = calculate_price_range(st.session_state.current_price, condition)
 
         # Display price range or warning
         if st.session_state.condition_level is not None:
@@ -334,19 +329,6 @@ def main():
             else:
                 min_price, max_price = st.session_state.price_range
                 st.markdown(f"""
-    <style>
-        body {{
-            background-color: #ffffff; /* Light background */
-            color: #000000; /* Dark text color */
-        }}
-        .full-width-box {{
-            width: 100%;
-            padding: 10px;
-            background-color: #f0f2f6;
-            border-radius: 5px;
-            text-align: center;
-        }}
-    </style>
     <div class="full-width-box">
         <h3 style="color: #276bf2;">Best value for your pre-loved bike in {conditions[st.session_state.condition_level]} Condition is valued at</h3>
         <h2 style="color: #276bf2;">₹{min_price:,.0f} - ₹{max_price:,.0f}</h2>
